@@ -137,21 +137,21 @@
             }, 1000);
         }
 
-function intrange(){
-let a = getRandomCoefficient();
-let b = getRandomCoefficient();
-if (a<b){
-    [a,b]=[b,a];
-}
-return [a,b];
-}
+        function intrange() {
+            let a = getRandomCoefficient();
+            let b = getRandomCoefficient();
+            if (a < b) {
+                [a, b] = [b, a];
+            }
+            return [a, b];
+        }
 
         function generatePolynomial() {
-           // let a = getRandomCoefficient();
+            // let a = getRandomCoefficient();
             let b = getRandomCoefficient();
             let c = getRandomCoefficient();
             let d = getRandomCoefficient();
-            return `${b === 0 ? '' :   b + 'x^2'} ${c === 0 ? '' : (c < 0 ? '' : b==0 ? '':'+') + c + 'x'} ${d === 0 ? '' : (d < 0 ? '' :b==0&&c==0 ? '': '+') + d}`;
+            return `${b === 0 ? '' : b + 'x^2'} ${c === 0 ? '' : (c < 0 ? '' : b == 0 ? '' : '+') + c + 'x'} ${d === 0 ? '' : (d < 0 ? '' : b == 0 && c == 0 ? '' : '+') + d}`;
         }
 
         function gcd(a, b) {
@@ -187,7 +187,7 @@ return [a,b];
             return `${sign}\\frac{${Math.abs(numerator)}}{${Math.abs(denominator)}}`;
         }
 
-        function integrate(polynomial,c) {
+        function integrate(polynomial, c) {
             const a = c[0];
             const b = c[1];
             let intanswer = [0, 1];
@@ -235,11 +235,11 @@ return [a,b];
             document.getElementById("point").innerText = point;
             let range = intrange();
             let polynomial = generatePolynomial();
-            const correctAnswer = integrate(polynomial,range);
+            const correctAnswer = integrate(polynomial, range);
 
             const answers = new Set([correctAnswer]);
             while (answers.size < 4) {
-                let randomAnswer = integrate(generatePolynomial(),intrange());
+                let randomAnswer = integrate(generatePolynomial(), intrange());
                 randomAnswer = randomAnswer.replace(/\+\-/g, '-')
                     .replace(/1\s*x/g, 'x')
                     .replace(/\+\s* -/g, '-')
@@ -280,10 +280,12 @@ return [a,b];
                     return;
                 }
             } else {
-                resultMessage = '不正解。正しい答えは: $$' + correct + '$$ ';
+                const aaa=correct;
+                resultMessage = "不正解。正しい答えは: $$" + aaa+"$$";
                 point = 0; // 不正解でリセット
             }
 
+            resultMessage = resultMessage.replace(/\f/g, `\\f`);
             document.getElementById("result-message").innerHTML = resultMessage;
             document.getElementById("result-screen").style.display = 'block'; // 結果画面を表示
             MathJax.typeset();
