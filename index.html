@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定積分</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            text-align: center;
+            background-color: #f5f5f5;
+            margin-top: 50px;
+        }
+
+        h1 {
+            margin-top: 50px;
+            color: #333;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 5px;
+            width: 350px;
+            height: 120px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #problem,
+        #result,
+        #timer {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            margin: 10px 0;
+        }
+
+        .result-screen {
+            display: none;
+        }
+
+        #start-screen {
+            display: block;
+        }
+
+        #quiz-screen {
+            display: none;
+        }
+
+        #end-screen {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="start-screen">
+        <h1>定積分</h1>
+        <p>このクイズでは、与えられた多項式の定積分を求める問題に挑戦します！</p>
+        <button onclick="startQuiz()">スタート</button>
+    </div>
+    <div id="quiz-screen">
+        <div id="timer">経過時間: <span id="time">0</span>秒 連続正解数:<span id="point"></span></div>
+        <div id="problem">ここに問題が表示されます</div>
+        <div id="options"></div>
+        <div id="result"></div>
+    </div>
+    <div class="result-screen" id="result-screen">
+        <div id="result-message"></div>
+        <button onclick="rstartQuiz()">次へ</button>
+    </div>
+    <div class="result-screen" id="end-screen">
+        <h1>お疲れ様でした！</h1>
+        <p>連続正解数が5に達しました！</p>
+        <p>タイムは <span id="stoptime"></span>秒です</p>
+        <button onclick="resetQuiz()">もう一度やる</button>
+    </div>
+    <script>
+        let timerInterval;
+        let timeLeft = 0;
+        let point = 0;
+        let stoptime = 0;
+
+        function startQuiz() {
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("quiz-screen").style.display = "block";
+            generateProblem();
+            startTimer();
+        }
+
+        function rstartQuiz() {
+            if (point < 3) {
+                document.getElementById("result-screen").style.display = "none";
+                document.getElementById("quiz-screen").style.display = "block";
+                generateProblem();
+            }
+        }
+
+        function resetQuiz() {
+            point = 0;
+            timeleft = 0;
+            document.getElementById("end-screen").style.display = "none";
+            document.getElementById("start-screen").style.display = "block";
+            document.getElementById("time").innerText = 0;
+        }
+
+        function getRandomCoefficient() {
+            return Math.floor(Math.random() * 10) - 5; // -5から4まで
+        }
+
+        function startTimer() {
+            timeLeft = 0;
+            timerInterval = setInterval(() => {
+                timeLeft++;
+                document.getElementById("time").innerText = timeLeft;
+            }, 1000);
+        }
+
+function intrange(){
+let a = getRandomCoefficient();
+let b = getRandomCoefficient();
+if (a<b){
+    [a,b]=[b,a];
+}
+return [a,b];
+}
+
+        function generatePolynomial() {
+           // let a = getRandomCoefficient();
+            let b = getRandomCoefficient();
+            let c = getRandomCoefficient();
+            let d = getRandomCoefficient();
+            return `${b === 0 ? '' :   b + 'x^2'} ${c === 0 ? '' : (c < 0 ? '' : b==0 ? '':'+') + c + 'x'} ${d === 0 ? '' : (d < 0 ? '' :b==0&&c==0 ? '': '+') + d}`;
+        }
+
+        function gcd(a, b) {
+            while (b !== 0) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return Math.abs(a);
+        }
+
+        function toFraction(numerator, denominator) {
+            const commonDivisor = gcd(numerator, denominator);
+            numerator /= commonDivisor;
+            denominator /= commonDivisor;
+
+            if (denominator === 1) return `${numerator}`;
+
+            const sign = numerator < 0 ? '-' : '';
+            return `${sign}\\frac{${Math.abs(numerator)}}{${Math.abs(denominator)}}`;
+        }
+
+        function toFractionadd(numeratora, denominatora, numeratorb, denominatorb) {
+            const numerator = numeratora * denominatorb + numeratorb * denominatora;
+            const denominator = denominatora * denominatorb;
+            const commonDivisor = gcd(numerator, denominator);
+            numerator /= commonDivisor;
+            denominator /= commonDivisor;
+
+            if (denominator === 1) return `${numerator}`;
+
+            const sign = numerator < 0 ? '-' : '';
+            return `${sign}\\frac{${Math.abs(numerator)}}{${Math.abs(denominator)}}`;
+        }
+
+        function integrate(polynomial,c) {
+            const a = c[0];
+            const b = c[1];
+            let intanswer = [0, 1];
+            const terms = polynomial.split(/(?=\+)|(?=-)/); // '+'または'-'で項を分割
+            const integratedTerms = terms.map(term => {
+                const match = term.match(/([+-]?\d*)x\^(\d+)/);
+                if (match) {
+                    const coefficient = match[1] === '' || match[1] === '+' ? 1 :
+                        match[1] === '-' ? -1 :
+                            parseInt(match[1]);
+                    const power = parseInt(match[2]);
+                    const newPower = power + 1;
+                    const newCoefficientNumerator = coefficient; // 分子
+                    const newCoefficientDenominator = newPower; // 新しい分母
+
+                    if (newCoefficientNumerator !== 0) {
+                        intanswer[0] = intanswer[0] * newCoefficientDenominator + intanswer[1] * newCoefficientNumerator * (a ** newCoefficientDenominator - b ** newCoefficientDenominator);
+                        intanswer[1] = intanswer[1] * newCoefficientDenominator;
+                    }
+                } else if (term.match(/x/)) { // xの項を処理
+                    const constant = term.match(/([+-]?\d+)/);
+                    intanswer[0] = intanswer[0] * 2 + intanswer[1] * constant[1] * (a ** 2 - b ** 2);
+                    intanswer[1] = intanswer[1] * 2;
+                } else {
+                    const constant = term.match(/([+-]?\d+)/);
+                    if (constant) {
+                        const value = parseInt(constant[1]);
+                        intanswer[0] = intanswer[0] + intanswer[1] * value * (a - b);
+                    }
+                }
+            });
+            const integrated = toFraction(intanswer[0], intanswer[1]);
+
+            return integrated; // 定積分の定数を追加
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function generateProblem() {
+            document.getElementById("point").innerText = point;
+            let range = intrange();
+            let polynomial = generatePolynomial();
+            const correctAnswer = integrate(polynomial,range);
+
+            const answers = new Set([correctAnswer]);
+            while (answers.size < 4) {
+                let randomAnswer = integrate(generatePolynomial(),intrange());
+                randomAnswer = randomAnswer.replace(/\+\-/g, '-')
+                    .replace(/1\s*x/g, 'x')
+                    .replace(/\+\s* -/g, '-')
+                    .replace(/\s+ -/g, '-');
+                answers.add(randomAnswer);
+            }
+
+            const answerArray = Array.from(answers);
+            shuffle(answerArray);
+            polynomial = polynomial.replace(/1x/g, 'x');
+            polynomial = polynomial.replace('(+', '(');
+
+            const problemHtml = `次の式を積分せよ: \\[ \\int^{${range[0]}}_{${range[1]}}(${polynomial})dx \\]`;
+            document.getElementById("problem").innerHTML = problemHtml;
+
+            const optionsHtml = answerArray.map((answer, index) =>
+                `<div class="option"><button onclick="checkAnswer('${answer}', '${correctAnswer}')">${index + 1}. \\[${answer}\\]</button></div>`
+            ).join('');
+            document.getElementById("options").innerHTML = optionsHtml;
+
+            document.getElementById("result").innerHTML = '';
+            document.getElementById("result-screen").style.display = 'none';
+            MathJax.typeset();
+        }
+
+        function checkAnswer(selected, correct) {
+            let resultMessage;
+            document.getElementById("quiz-screen").style.display = 'none'; // クイズ画面を隠す
+            if (selected === correct) {
+                resultMessage = '正解！';
+                point++;
+                if (point >= 3) {
+                    // 連続正解数が3に達した場合、終了画面を表示
+                    stoptime = timeLeft;
+                    timeLeft = 0;
+                    document.getElementById("stoptime").innerHTML = stoptime;
+                    document.getElementById("end-screen").style.display = "block";
+                    return;
+                }
+            } else {
+                resultMessage = '不正解。正しい答えは: $$' + correct + '$$ ';
+                point = 0; // 不正解でリセット
+            }
+
+            document.getElementById("result-message").innerHTML = resultMessage;
+            document.getElementById("result-screen").style.display = 'block'; // 結果画面を表示
+            MathJax.typeset();
+        }
+    </script>
+</body>
+
+</html>
