@@ -119,7 +119,7 @@
 
         function resetQuiz() {
             point = 0;
-            timeleft = 0;
+            timeLeft = 0;
             document.getElementById("end-screen").style.display = "none";
             document.getElementById("start-screen").style.display = "block";
             document.getElementById("time").innerText = 0;
@@ -187,7 +187,7 @@
             return `${sign}\\frac{${Math.abs(numerator)}}{${Math.abs(denominator)}}`;
         }
 
-        function integrate(polynomial, c) {
+        function integral(polynomial, c) {
             const a = c[0];
             const b = c[1];
             let intanswer = [0, 1];
@@ -224,22 +224,68 @@
             return integrated; // 定積分の定数を追加
         }
 
+        function integrate(polynomial) {
+            const terms = polynomial.split(/(?=\+)|(?=-)/); // '+'または'-'で項を分割
+            const integratedTerms = terms.map(term => {
+                const match = term.match(/([+-]?\d*)x\^(\d+)/);
+                if (match) {
+                    const coefficient = match[1] === '' || match[1] === '+' ? 1 :
+                        match[1] === '-' ? -1 :
+                            parseInt(match[1]);
+                    const power = parseInt(match[2]);
+                    const newPower = power + 1;
+
+                    const newCoefficientNumerator = coefficient; // 分子
+                    const newCoefficientDenominator = newPower; // 新しい分母
+
+                    if (newCoefficientNumerator !== 0) {
+                        return toFraction(newCoefficientNumerator, newCoefficientDenominator) + `x^${newPower}`;
+                    }
+                } else if (term.match(/x/)) { // xの項を処理
+                    const constant = term.match(/([+-]?\d+)/);
+                    return toFraction(parseInt(constant[1]), 2) + 'x^2'; // 定数項を x^1 として処理
+                } else {
+                    const constant = term.match(/([+-]?\d+)/);
+                    if (constant) {
+                        const value = parseInt(constant[1]);
+                        return toFraction(value, 1) + 'x'; // 定数項をxとして扱う
+                    }
+                    return ''; // 無効な項
+                }
+            });
+
+            const filteredTerms = integratedTerms.filter(term => term !== '' && term !== '0');
+            let integrated = filteredTerms.join(' + '); // 結果の組み立て
+
+            integrated = integrated.replace(/\+\-/g, '-');
+            integrated = integrated.replace(/(?<!\d)1x/g, 'x');
+            integrated = integrated.replace(/\+\s* -/g, '-');
+            integrated = integrated.replace(/\s+ -/g, '-');
+            return integrated; // 定積分の定数を追加
+        }
+
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
-
+        function display(array) {
+            array = array.replace(/\+\-/g, '-')
+                .replace(/1\s*x/g, 'x')
+                .replace(/\+\s* -/g, '-')
+                .replace(/\s+ -/g, '-');
+            return array;
+        }
         function generateProblem() {
             document.getElementById("point").innerText = point;
             let range = intrange();
             let polynomial = generatePolynomial();
-            const correctAnswer = integrate(polynomial, range);
+            const correctAnswer = integral(polynomial, range);
 
             const answers = new Set([correctAnswer]);
             while (answers.size < 4) {
-                let randomAnswer = integrate(generatePolynomial(), intrange());
+                let randomAnswer = integral(generatePolynomial(), intrange());
                 randomAnswer = randomAnswer.replace(/\+\-/g, '-')
                     .replace(/1\s*x/g, 'x')
                     .replace(/\+\s* -/g, '-')
@@ -249,14 +295,15 @@
 
             const answerArray = Array.from(answers);
             shuffle(answerArray);
+            const polynomialmoto = polynomial;
             polynomial = polynomial.replace(/1x/g, 'x');
             polynomial = polynomial.replace('(+', '(');
-
-            const problemHtml = `次の式を積分せよ: \\[ \\int^{${range[0]}}_{${range[1]}}(${polynomial})dx \\]`;
+            const problemint = `\\int^{${range[0]}}_{${range[1]}}(${polynomial})dx`
+            const problemHtml = `次の式を積分せよ: \\[ ${problemint} \\]`;
             document.getElementById("problem").innerHTML = problemHtml;
 
             const optionsHtml = answerArray.map((answer, index) =>
-                `<div class="option"><button onclick="checkAnswer('${answer}', '${correctAnswer}')">${index + 1}. \\[${answer}\\]</button></div>`
+                `<div class="option"><button onclick="checkAnswer('${answer}', '${correctAnswer}','${range[0]}','${range[1]}','${polynomialmoto}')">${index + 1}. \\[${answer}\\]</button></div>`
             ).join('');
             document.getElementById("options").innerHTML = optionsHtml;
 
@@ -265,7 +312,7 @@
             MathJax.typeset();
         }
 
-        function checkAnswer(selected, correct) {
+        function checkAnswer(selected, correct, proa, prob, prog) {
             let resultMessage;
             document.getElementById("quiz-screen").style.display = 'none'; // クイズ画面を隠す
             if (selected === correct) {
@@ -280,8 +327,34 @@
                     return;
                 }
             } else {
-                const aaa=correct;
-                resultMessage = "不正解。正しい答えは: $$" + aaa+"$$";
+                let aaa;
+                if (proa < 0) {
+                    aaa = integrate(prog).replace(/x/g, `\\times \( ${proa} \) `);
+                }
+                else {
+                    aaa = integrate(prog).replace(/x/g, `\\times \{ ${proa} \} `);
+                }
+                aaa = aaa.replace(/\+ \\times /g, ` + `);
+                aaa = aaa.replace(/-\\times /g, `-`);
+                aaa = aaa.replace(/^\\times /g, ``);
+                let bbb;
+                if (prob < 0) {
+                    bbb = integrate(prog).replace(/x/g, `\\times \( ${prob} \) `);
+                }
+                else {
+                    bbb = integrate(prog).replace(/x/g, `\\times \{ ${prob} \} `);
+                }
+                bbb = bbb.replace(/\+ \\times /g, ` + `);
+                bbb = bbb.replace(/-\\times /g, `-`);
+                bbb = bbb.replace(/^\\times /g, ``);
+                if(prob<0){
+                resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
+                $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
+                $$=${aaa}-\\left\\{ ${bbb}\\right\\} $$ $$ =${correct}$$`;}
+                else{
+                resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
+                $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
+                $$=${aaa}-\\left( ${bbb}\\right) $$ $$ =${correct}$$`;}
                 point = 0; // 不正解でリセット
             }
 
