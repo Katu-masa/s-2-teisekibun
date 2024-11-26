@@ -223,7 +223,40 @@
 
             return integrated; // 定積分の定数を追加
         }
+        function integrala(polynomial, c) {
+            let intanswer = [0, 1];
+            const terms = polynomial.split(/(?=\+)|(?=-)/); // '+'または'-'で項を分割
+            const integratedTerms = terms.map(term => {
+                const match = term.match(/([+-]?\d*)x\^(\d+)/);
+                if (match) {
+                    const coefficient = match[1] === '' || match[1] === '+' ? 1 :
+                        match[1] === '-' ? -1 :
+                            parseInt(match[1]);
+                    const power = parseInt(match[2]);
+                    const newPower = power + 1;
+                    const newCoefficientNumerator = coefficient; // 分子
+                    const newCoefficientDenominator = newPower; // 新しい分母
 
+                    if (newCoefficientNumerator !== 0) {
+                        intanswer[0] = intanswer[0] * newCoefficientDenominator + intanswer[1] * newCoefficientNumerator * (c ** newCoefficientDenominator);
+                        intanswer[1] = intanswer[1] * newCoefficientDenominator;
+                    }
+                } else if (term.match(/x/)) { // xの項を処理
+                    const constant = term.match(/([+-]?\d+)/);
+                    intanswer[0] = intanswer[0] * 2 + intanswer[1] * constant[1] * (c ** 2);
+                    intanswer[1] = intanswer[1] * 2;
+                } else {
+                    const constant = term.match(/([+-]?\d+)/);
+                    if (constant) {
+                        const value = parseInt(constant[1]);
+                        intanswer[0] = intanswer[0] + intanswer[1] * value * (c);
+                    }
+                }
+            });
+            const integrated = toFraction(intanswer[0], intanswer[1]);
+
+            return integrated; // 定積分の定数を追加
+        }
         function integrate(polynomial) {
             const terms = polynomial.split(/(?=\+)|(?=-)/); // '+'または'-'で項を分割
             const integratedTerms = terms.map(term => {
@@ -347,14 +380,20 @@
                 bbb = bbb.replace(/\+ \\times /g, ` + `);
                 bbb = bbb.replace(/-\\times /g, `-`);
                 bbb = bbb.replace(/^\\times /g, ``);
-                if(prob<0){
-                resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
+                if (prob < 0) {
+                    resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
                 $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}-\\left\\{ ${bbb}\\right\\} $$ $$ =${correct}$$`;}
-                else{
-                resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
+                $$=${aaa}-\\left\\{ ${bbb}\\right\\} $$
+                $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                = ${correct}$$`;
+                }
+                else {
+                    resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
                 $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}-\\left( ${bbb}\\right) $$ $$ =${correct}$$`;}
+                $$=${aaa}-\\left( ${bbb}\\right) $$
+                $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                = ${correct}$$`;
+                }
                 point = 0; // 不正解でリセット
             }
 
