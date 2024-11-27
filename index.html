@@ -384,14 +384,16 @@
                 if (prob < 0) {
                     resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
                 $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}-\\left\\{ ${bbb}\\right\\} $$
+                $$=${aaa}$$
+                $$-\\left\\{ ${bbb}\\right\\} $$
                 $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
                 = ${correct}$$`;
                 }
                 else {
                     resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
                 $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}-\\left( ${bbb}\\right) $$
+                $$=${aaa}$$
+                $$-\\left( ${bbb}\\right) $$
                 $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
                 = ${correct}$$`;
                 }
