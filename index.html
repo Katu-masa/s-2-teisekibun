@@ -383,19 +383,19 @@
                 bbb = bbb.replace(/^\\times /g, ``);
                 if (prob < 0) {
                     resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
-                $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}$$
-                $$-\\left\\{ ${bbb}\\right\\} $$
-                $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
-                = ${correct}$$`;
+                \\begin{eqnarray} && \\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} \\\\
+                &=&${aaa}\\\\
+                &&-\\left\\{ ${bbb}\\right\\} \\\\
+                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') ==0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                = ${correct}\\end{eqnarray} `;
                 }
                 else {
                     resultMessage = `不正解。 \\( \\displaystyle \\int ^\{ ${proa} \} _\{ ${prob}  \} ${display(prog)}\\) を積分すると
-                $$\\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} $$
-                $$=${aaa}$$
-                $$-\\left( ${bbb}\\right) $$
-                $$=${integrala(prog, proa)}- ${prob < 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
-                = ${correct}$$`;
+                \\begin{eqnarray} && \\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\}  \\\\
+                &=&${aaa}\\\\
+                &&-\\left( ${bbb}\\right) \\\\
+                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') ==0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                = ${correct}\\end{eqnarray} `;
                 }
                 point = 0; // 不正解でリセット
             }
