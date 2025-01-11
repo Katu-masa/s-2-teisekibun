@@ -26,7 +26,7 @@
             font-size: 18px;
             cursor: pointer;
             margin: 5px;
-            width: 350px;
+            width: 100px;
             height: 120px;
             background-color: #4CAF50;
             color: white;
@@ -37,6 +37,46 @@
 
         button:hover {
             background-color: #45a049;
+        }
+
+        .start-button {
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 5px;
+            width: 150px;
+            height: 60px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #45a049;
+        }
+
+        .paint-button {
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 9px;
+            padding: 10px 20px;
+            width: 80px;
+            height: 40px;
+            background-color: #aaadaf;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .paint-button:hover {
+            background-color: #3c3d3e;
+        }
+
+        canvas {
+            border: 2px solid rgba(0, 0, 0, 0.2);
         }
 
         #problem,
@@ -79,13 +119,26 @@
         <h1>定積分</h1>
         <p>このクイズでは、与えられた多項式の定積分を求める問題に挑戦します！</p>
         <p>連続３問正解すればクリアです。</p>
-        <button onclick="startQuiz()">スタート</button>
+        <button class="start-button" onclick="startQuiz()">スタート</button>
     </div>
     <div id="quiz-screen">
         <div id="timer">経過時間: <span id="time">0</span>秒 連続正解数:<span id="point"></span></div>
         <div id="problem">ここに問題が表示されます</div>
         <div id="options"></div>
         <div id="result"></div>
+        <h2>計算スペース</h2>
+        <div class="controls">
+            <button id="clearBtn" class="paint-button">クリア</button>
+            <button id="eraserBtn" class="paint-button">消しゴム</button>
+            <button id="penBtn" class="paint-button">ペン</button>
+            <label>
+                線の色:
+                <input type="color" id="colorPicker" value="#000000">
+            </label>
+        </div>
+        <canvas id="drawingCanvas" width="800" height="600"></canvas>
+        <script src="paint.js"></script>
+
     </div>
     <div class="result-screen" id="result-screen">
         <div id="result-message"></div>
@@ -95,7 +148,7 @@
         <h1>お疲れ様でした！</h1>
         <p>連続正解数が3に達しました！</p>
         <p>タイムは <span id="stoptime"></span>秒です</p>
-        <button onclick="resetQuiz()">もう一度やる</button>
+        <button class="start-button" onclick="resetQuiz()">もう一度やる</button>
     </div>
     <script>
         let timerInterval;
@@ -387,7 +440,7 @@
                 \\begin{eqnarray} && \\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\} \\\\
                 &=&${aaa}\\\\
                 &&-\\left\\{ ${bbb}\\right\\} \\\\
-                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') ==0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') == 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
                 = ${correct}\\end{eqnarray} `;
                 }
                 else {
@@ -395,7 +448,7 @@
                 \\begin{eqnarray} && \\left[ ${integrate(prog)}\\right] ^\{ ${proa}\} _\{ ${prob}\}  \\\\
                 &=&${aaa}\\\\
                 &&-\\left( ${bbb}\\right) \\\\
-                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') ==0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
+                &=&${integrala(prog, proa)}- ${integrala(prog, prob).indexOf('-') == 0 ? '\\left\(' + integrala(prog, prob) + '\\right\) ' : integrala(prog, prob)}
                 = ${correct}\\end{eqnarray} `;
                 }
                 point = 0; // 不正解でリセット
