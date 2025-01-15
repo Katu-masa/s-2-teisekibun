@@ -1,6 +1,7 @@
 const canvas = document.getElementById("drawingCanvas");
 const ctx = canvas.getContext("2d");
 
+
 let drawing = false; // 描画中かどうか
 let lineColor = "#000000"; // 初期色
 let lineWidth = 2; // 初期線の太さ
@@ -84,3 +85,32 @@ document.getElementById("colorPicker").addEventListener("input", (e) => {
 document.getElementById("lineWidth").addEventListener("input", (e) => {
     lineWidth = e.target.value;
 });
+function resizeCanvas() {
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // 現在のキャンバス内容を保存
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // キャンバスの横幅を画面幅に設定
+    canvas.width = window.innerWidth * 0.95;
+
+    // 高さを適宜調整（例：横幅の3/4の比率）
+    canvas.height = window.innerHeight * 0.75;
+
+    // 保存した内容を再描画
+    ctx.drawImage(tempCanvas, 0, 0);
+}
+
+// 初期設定でキャンバスサイズを変更
+resizeCanvas();
+
+// 画面リサイズ時にもキャンバスを調整
+window.addEventListener("resize", resizeCanvas);
+
+
+
