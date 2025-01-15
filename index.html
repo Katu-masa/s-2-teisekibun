@@ -77,7 +77,6 @@
 
         canvas {
             border: 2px solid rgba(0, 0, 0, 0.2);
-            width: 95%;
         }
 
         #problem,
@@ -152,6 +151,14 @@
         <button class="start-button" onclick="resetQuiz()">もう一度やる</button>
     </div>
     <script>
+
+        // 初期設定でキャンバスサイズを変更
+        resizeCanvas();
+
+        // 画面リサイズ時にもキャンバスを調整
+        window.addEventListener("resize", resizeCanvas);
+
+
         let timerInterval;
         let timeLeft = 0;
         let point = 0;
