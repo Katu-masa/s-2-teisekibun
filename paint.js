@@ -81,10 +81,6 @@ document.getElementById("colorPicker").addEventListener("input", (e) => {
     lineColor = e.target.value;
 });
 
-// 線の太さ変更
-document.getElementById("lineWidth").addEventListener("input", (e) => {
-    lineWidth = e.target.value;
-});
 function resizeCanvas() {
     const canvas = document.getElementById("drawingCanvas");
     const ctx = canvas.getContext("2d");
